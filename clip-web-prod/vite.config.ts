@@ -3,6 +3,8 @@ import adapter from '@sveltejs/adapter-static';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { defineConfig } from 'vite';
 
+const cloudfrontUrl = 'https://d1b22yxfwigc7c.cloudfront.net';
+
 export default defineConfig({
 	plugins: [
 		tailwindcss(),
@@ -18,5 +20,17 @@ export default defineConfig({
 			// See https://svelte.dev/docs/kit/adapters for more information about adapters.
 			adapter: adapter({assets: 'build', pages: 'build', fallback: 'index.html'})
 		})
-	]
+	],
+  	server: {
+		proxy: {
+			'/data': {
+				target: cloudfrontUrl,
+				changeOrigin: true
+			},
+			'/images': {
+				target: cloudfrontUrl,
+				changeOrigin: true
+			}
+		}
+	}
 });
