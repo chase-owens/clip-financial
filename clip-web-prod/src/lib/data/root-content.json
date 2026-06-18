@@ -1,0 +1,157 @@
+{
+	"hero": {
+		"eyebrow": "Finance Operations Consulting",
+		"title": "Build a finance process your team can trust.",
+		"subtitle": "We help finance teams turn payment workflows, reconciliation processes, and reporting requirements into scalable systems that support better decisions every month.",
+		"primaryCta": {
+			"label": "Book a Workflow Review",
+			"href": "#contact"
+		},
+		"secondaryCta": {
+			"label": "See Services",
+			"href": "#services"
+		},
+		"commonIssues": [
+			"Payment processor exports do not match the books cleanly",
+			"Too much time is spent cleaning spreadsheets",
+			"Month-end close depends on tribal knowledge",
+			"Fees, refunds, deposits, and payouts are hard to trace",
+			"Reports are late, unclear, or rebuilt manually every month"
+		]
+	},
+
+	"whatWeDo": {
+		"eyebrow": "What We Actually Do",
+		"title": "We connect the workflow to the decisions it needs to support.",
+		"description": "The goal is not simply to improve a process. The goal is to build a workflow that consistently produces the information needed to make effective decisions.",
+		"items": [
+			{
+				"title": "We define the outcomes.",
+				"description": "We identify the reports, metrics, and financial information that create value for the business."
+			},
+			{
+				"title": "We assess the workflow.",
+				"description": "We evaluate current processes, historical decisions, successes, and failures to understand what creates value and what creates friction."
+			},
+			{
+				"title": "We build the future state.",
+				"description": "We create scalable workflows, automation, reporting structures, and documentation that support the desired outcome."
+			}
+		]
+	},
+
+	"services": {
+		"eyebrow": "Core Services",
+		"title": "We fix the workflow behind the reporting problem.",
+		"description": "The work starts with how the process actually runs today — not how the software was supposed to work on paper.",
+		"items": [
+			{
+				"title": "Payment Workflow Review",
+				"description": "Map how money moves through processors, banks, and accounting systems to identify friction and inefficiencies."
+			},
+			{
+				"title": "Reconciliation Cleanup",
+				"description": "Improve matching rules, exception handling, settlement timing, and month-end processes."
+			},
+			{
+				"title": "Finance Reporting Systems",
+				"description": "Create reporting structures that provide reliable visibility into financial performance."
+			}
+		]
+	},
+
+	"process": {
+		"eyebrow": "Process",
+		"title": "We start with the decisions your finance team needs to support.",
+		"description": "Before optimizing workflows or adding automation, we define what success should actually produce for the business.",
+		"steps": [
+			{
+				"title": "Define the outcomes",
+				"description": "Identify the reports, metrics, and financial information that enable effective decision-making."
+			},
+			{
+				"title": "Clarify success",
+				"description": "Define what success looks like if the engagement delivers exactly what the team hopes to achieve."
+			},
+			{
+				"title": "Assess value, friction, and why",
+				"description": "Evaluate current workflows and historical process decisions to understand what created value, what created friction, and why."
+			},
+			{
+				"title": "Build the scalable process",
+				"description": "Preserve the strengths of the current workflow while improving, automating, and standardizing activities that create unnecessary effort."
+			}
+		]
+	},
+
+	"whyClip": {
+		"eyebrow": "Why Clip Financial",
+		"title": "A practical approach to finance operations.",
+		"description": "We focus on the process behind the numbers and the information required to make better decisions.",
+		"items": [
+			{
+				"title": "Process Before Software",
+				"description": "Understand the workflow before recommending tools."
+			},
+			{
+				"title": "Less Manual Cleanup",
+				"description": "Reduce repetitive reconciliation and spreadsheet work."
+			},
+			{
+				"title": "Reporting You Can Trust",
+				"description": "Create consistent processes that produce reliable information."
+			}
+		]
+	},
+
+	"bestFit": {
+		"eyebrow": "Best Fit",
+		"title": "Built for finance teams that have outgrown the old way of working.",
+		"description": "Organizations where growth has made existing finance processes harder to manage.",
+		"items": [
+			{
+				"title": "Small Finance Teams",
+				"description": "Teams that need cleaner processes without unnecessary complexity."
+			},
+			{
+				"title": "Growing Service Businesses",
+				"description": "Businesses where finance work is becoming harder to manage month to month."
+			},
+			{
+				"title": "Payment-Heavy Operations",
+				"description": "Companies dealing with processor payouts, fees, refunds, and settlement timing."
+			},
+			{
+				"title": "Teams Buried in Exports",
+				"description": "Finance teams spending too much time cleaning spreadsheets and rebuilding reports."
+			}
+		]
+	},
+
+	"results": {
+		"eyebrow": "Results",
+		"title": "What better looks like.",
+		"description": "The goal is a finance process that is easier to operate, easier to understand, and easier to trust.",
+		"before": [
+			"Manual exports and spreadsheet cleanup",
+			"Month-end surprises and reconciliation delays",
+			"Reporting that depends on one person",
+			"Unclear ownership and inconsistent processes",
+			"Questions about whether the numbers are right"
+		],
+		"after": [
+			"Clear workflows that the entire team can follow",
+			"Faster and more predictable month-end processes",
+			"Reporting that supports better decisions",
+			"Documented procedures and accountability",
+			"Confidence in the financial information being reported"
+		]
+	},
+
+	"contact": {
+		"eyebrow": "Start Here",
+		"title": "Build a resilient finance process.",
+		"description": "Tell us how payments, accounting, and reporting work today. We'll identify opportunities to reduce manual work, improve visibility, and create a process your team can rely on every month.",
+		"primaryCta": "Send Request"
+	}
+}
