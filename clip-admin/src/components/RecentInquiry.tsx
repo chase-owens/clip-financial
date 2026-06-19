@@ -1,14 +1,7 @@
 import type { FC } from "react";
 import type { Inquiry } from "../../../shared/types/Inquiry";
 
-const RecentInquiry: FC<Inquiry> = ({
-  name,
-  email,
-  message,
-  company,
-  createdAt,
-  status,
-}) => {
+const RecentInquiry: FC<Inquiry> = ({ name, company, createdAt, status }) => {
   return (
     <div className="flex items-center justify-between rounded-xl border border-(--border) bg-(--bg) px-4 py-3">
       <div>
