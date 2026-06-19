@@ -11,6 +11,7 @@ const EditInquiry: FC = () => {
   const { inquiryId } = useParams();
   const { currentInquiry } = useInquiries(inquiryId);
 
+  const [hasEdits, setHasEdits] = useState(false);
   const [notes, setNotes] = useState("");
   const [status, setStatus] = useState(currentInquiry?.status ?? "new");
   const [isSaving, setIsSaving] = useState(false);
@@ -41,6 +42,7 @@ const EditInquiry: FC = () => {
         throw new Error("Failed to update inquiry");
       }
 
+      setHasEdits(false);
       navigate("/inquiries");
     } catch (error) {
       console.error(error);
@@ -89,7 +91,10 @@ const EditInquiry: FC = () => {
 
               <select
                 value={status}
-                onChange={(event) => setStatus(event.target.value as Status)}
+                onChange={(event) => {
+                  setHasEdits(true);
+                  setStatus(event.target.value as Status);
+                }}
                 className="w-full rounded-xl border border-(--border) bg-(--bg) px-4 py-3"
               >
                 <option value="new">New</option>
@@ -105,7 +110,10 @@ const EditInquiry: FC = () => {
               <textarea
                 rows={8}
                 value={notes}
-                onChange={(event) => setNotes(event.target.value)}
+                onChange={(event) => {
+                  setHasEdits(true);
+                  setNotes(event.target.value);
+                }}
                 className="w-full rounded-xl border border-(--border) bg-(--bg) p-4"
               />
             </div>
@@ -121,11 +129,15 @@ const EditInquiry: FC = () => {
 
               <button
                 type="button"
-                disabled={isSaving}
+                disabled={isSaving || !hasEdits}
                 onClick={handleSave}
                 className="rounded-xl bg-(--accent) px-4 py-2 text-white"
               >
-                {isSaving ? "Saving..." : "Save Changes"}
+                {isSaving
+                  ? "Saving..."
+                  : !hasEdits
+                    ? "No Changes"
+                    : "Save Changes"}
               </button>
             </div>
           </div>

@@ -56,6 +56,7 @@ const Content: FC = () => {
       const data = await response.json();
 
       if (data.content) {
+        setHasEdits(false);
         setContent(data.content);
       }
 
