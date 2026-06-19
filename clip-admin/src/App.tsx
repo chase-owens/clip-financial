@@ -1,7 +1,17 @@
 import { Outlet } from "react-router-dom";
 import "./index.css";
 
-const navItems = ["Dashboard", "Content", "Inquiries", "Settings"];
+type NavItem = {
+  label: string;
+  href: string;
+};
+
+const navItems: NavItem[] = [
+  { label: "Dashboard", href: "/" },
+  { label: "Content", href: "/content" },
+  { label: "Inquiries", href: "/inquiries" },
+  { label: "Settings", href: "/settings" },
+];
 
 export default function App() {
   return (
@@ -14,13 +24,13 @@ export default function App() {
         <h1 className="mt-2 text-2xl font-bold text-(--text-h)">Admin</h1>
 
         <nav className="mt-8 grid gap-2">
-          {navItems.map((item) => (
+          {navItems.map(({ href, label }) => (
             <a
-              href={`/${item.toLocaleLowerCase()}`}
-              key={item}
+              href={href}
+              key={label}
               className="rounded-xl border border-(--border) bg-(--social-bg) px-4 py-3 text-left text-sm transition hover:border-(--accent-border)"
             >
-              {item}
+              {label}
             </a>
           ))}
         </nav>
