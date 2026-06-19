@@ -1,12 +1,12 @@
-const jsonResponse = (statusCode: number, body: unknown) => ({
+const jsonResponse = (statusCode: number, body: unknown, sendRaw = false) => ({
   statusCode,
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "OPTIONS,POST,PATCH",
+    "Access-Control-Allow-Methods": "OPTIONS,POST,PATCH,GET",
   },
-  body: JSON.stringify(body),
+  body: sendRaw ? body : JSON.stringify(body),
 });
 
 export default jsonResponse;
