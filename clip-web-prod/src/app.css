@@ -3,31 +3,38 @@
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
 
-
 @theme {
-  --color-background: #f7f8fb;
-  --color-surface: #ffffff;
+	--color-background: #f7f8fb;
+	--color-surface: #ffffff;
 
-  --color-primary: #0b1f3a; /* deep navy */
-  --color-primary-foreground: #ffffff;
+	--color-primary: #0b1f3a; /* deep navy */
+	--color-primary-foreground: #ffffff;
 
-  --color-secondary: #183b63; /* softer navy */
-  --color-secondary-foreground: #ffffff;
+	--color-secondary: #183b63; /* softer navy */
+	--color-secondary-foreground: #ffffff;
 
-  --color-accent: #c8a24a; /* muted gold */
-  --color-highlight: #8f1d2c; /* optional navy/red accent */
+	--color-accent: #c8a24a; /* muted gold */
+	--color-highlight: #8f1d2c; /* optional navy/red accent */
 
-  --color-border: #d8dee8;
-  --color-foreground: #101828;
-  --color-muted: #5f6b7a;
+	--color-border: #d8dee8;
+	--color-foreground: #101828;
+	--color-muted: #5f6b7a;
 
-  --font-heading: 'Libre Baskerville', serif;
-  --font-body: 'Inter', system-ui, sans-serif;
+	--color-success: #15803d;
+	--color-success-background: #dcfce7;
 
-  --radius-vintage: 0.5rem;
-  --shadow-soft: 0 1px 2px rgb(16, 24, 40, 0.08);
+	--color-error: #b91c1c;
+	--color-error-background: #fee2e2;
+
+	--color-warning: #b45309;
+	--color-warning-background: #fef3c7;
+
+	--font-heading: 'Libre Baskerville', serif;
+	--font-body: 'Inter', system-ui, sans-serif;
+
+	--radius-vintage: 0.5rem;
+	--shadow-soft: 0 1px 2px rgb(16, 24, 40, 0.08);
 }
-
 
 @layer base {
 	html {
@@ -35,7 +42,7 @@
 	}
 
 	body {
-		@apply bg-background text-foreground font-body antialiased;
+		@apply bg-background font-body text-foreground antialiased;
 	}
 
 	h1,
@@ -59,7 +66,7 @@
 
 @layer components {
 	.btn-base {
-		@apply rounded-vintage shadow-soft px-4 py-4 text-center text-sm font-medium transition-colors;
+		@apply rounded-vintage px-4 py-4 text-center text-sm font-medium shadow-soft transition-colors;
 	}
 
 	.btn-border {
@@ -71,11 +78,11 @@
 	}
 
 	.btn-primary {
-		@apply bg-primary hover:bg-secondary text-white;
+		@apply bg-primary text-white hover:bg-secondary;
 	}
 
 	.btn-secondary {
-		@apply border-foreground text-foreground hover:bg-border border-1;
+		@apply border-1 border-foreground text-foreground hover:bg-border;
 	}
 
 	.btn-link-primary {
