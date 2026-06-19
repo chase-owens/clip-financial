@@ -22,7 +22,7 @@ const HeroSection: FC<HeroSectionProps> = ({ onChange, section }) => {
   };
   return (
     <div className="rounded-2xl border border-(--border) bg-(--social-bg) p-6 shadow-(--shadow)">
-      <h3 className="mb-5 text-lg font-semibold text-(--text-h)">"Hero"</h3>
+      <h3 className="mb-5 text-lg font-semibold text-(--text-h)">Hero</h3>
       <Field
         label="Eyebrow"
         value={section.eyebrow}
