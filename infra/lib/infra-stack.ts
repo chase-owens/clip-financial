@@ -8,6 +8,8 @@ import { TABLE_ID, TABLE_PROPS } from "./config/dynamodb";
 import {
   CREATE_INQUIRY_LAMBDA_ID,
   CREATE_INQUIRY_LAMBDA_PROPS,
+  GET_CONTENT_LAMBDA_ID,
+  GET_CONTENT_LAMBDA_PROPS,
   GET_INQUIRIES_LAMBDA_ID,
   GET_INQUIRIES_LAMBDA_PROPS,
   UPDATE_INQUIRY_LAMBDA_ID,
@@ -81,6 +83,12 @@ export class InfraStack extends cdk.Stack {
       },
     );
 
+    const contentBucket = s3.Bucket.fromBucketName(
+      this,
+      "ContentBucket",
+      "clip-content-prod",
+    );
+
     this.inquiriesTable = new dynamodb.Table(this, TABLE_ID, TABLE_PROPS);
 
     const createInquiryLambda = new nodeLambda.NodejsFunction(
@@ -100,6 +108,14 @@ export class InfraStack extends cdk.Stack {
       UPDATE_INQUIRY_LAMBDA_ID,
       UPDATE_INQUIRY_LAMBDA_PROPS,
     );
+
+    const getContentLambda = new nodeLambda.NodejsFunction(
+      this,
+      GET_CONTENT_LAMBDA_ID,
+      GET_CONTENT_LAMBDA_PROPS,
+    );
+
+    contentBucket.grantRead(getContentLambda);
 
     this.inquiriesTable.grantWriteData(createInquiryLambda);
     this.inquiriesTable.grantReadData(getInquiriesLambda);
@@ -123,9 +139,8 @@ export class InfraStack extends cdk.Stack {
       value: adminDistribution.distributionDomainName,
     });
 
+    //inquiries
     const inquiries = api.root.addResource("inquiries");
-    const inquiry = inquiries.addResource("{inquiryId}");
-
     inquiries.addMethod(
       "POST",
       new apigateway.LambdaIntegration(createInquiryLambda),
@@ -136,9 +151,18 @@ export class InfraStack extends cdk.Stack {
       new apigateway.LambdaIntegration(getInquiriesLambda),
     );
 
+    //inquiry
+    const inquiry = inquiries.addResource("{inquiryId}");
     inquiry.addMethod(
       "PATCH",
       new apigateway.LambdaIntegration(updateInquiriesLambda),
+    );
+
+    // content
+    const content = api.root.addResource("content");
+    content.addMethod(
+      "GET",
+      new apigateway.LambdaIntegration(getContentLambda),
     );
   }
 }

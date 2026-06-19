@@ -3,6 +3,7 @@ import App from "../App";
 import Dashboard from "../pages/Dashboard";
 import Inquiries from "../pages/Inquiries";
 import EditInquiry from "../pages/EditInquiry";
+import Content from "../pages/Content";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -18,5 +19,10 @@ export const router = createBrowserRouter([
     path: "inquiries/:inquiryId",
     element: <App />,
     children: [{ index: true, element: <EditInquiry /> }],
+  },
+  {
+    path: "content",
+    element: <App />,
+    children: [{ index: true, element: <Content /> }],
   },
 ]);
