@@ -12,6 +12,8 @@ import {
   GET_CONTENT_LAMBDA_PROPS,
   GET_INQUIRIES_LAMBDA_ID,
   GET_INQUIRIES_LAMBDA_PROPS,
+  UPDATE_CONTENT_LAMBDA_ID,
+  UPDATE_CONTENT_LAMBDA_PROPS,
   UPDATE_INQUIRY_LAMBDA_ID,
   UPDATE_INQUIRY_LAMBDA_PROPS,
 } from "./config/lambda";
@@ -115,7 +117,14 @@ export class InfraStack extends cdk.Stack {
       GET_CONTENT_LAMBDA_PROPS,
     );
 
+    const updateContentLambda = new nodeLambda.NodejsFunction(
+      this,
+      UPDATE_CONTENT_LAMBDA_ID,
+      UPDATE_CONTENT_LAMBDA_PROPS,
+    );
+
     contentBucket.grantRead(getContentLambda);
+    contentBucket.grantWrite(updateContentLambda);
 
     this.inquiriesTable.grantWriteData(createInquiryLambda);
     this.inquiriesTable.grantReadData(getInquiriesLambda);
@@ -163,6 +172,11 @@ export class InfraStack extends cdk.Stack {
     content.addMethod(
       "GET",
       new apigateway.LambdaIntegration(getContentLambda),
+    );
+
+    content.addMethod(
+      "PUT",
+      new apigateway.LambdaIntegration(updateContentLambda),
     );
   }
 }

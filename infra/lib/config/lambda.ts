@@ -55,3 +55,17 @@ export const GET_CONTENT_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
     CONTENT_KEY: "data/root-content.json",
   },
 };
+
+export const UPDATE_CONTENT_LAMBDA_ID = "UpdateContentLambda";
+
+export const UPDATE_CONTENT_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
+  functionName: "clip-update-content-prod",
+  runtime: lambda.Runtime.NODEJS_22_X,
+  entry: path.join(__dirname, "../../../lambdas/update-content/index.ts"),
+  projectRoot: path.join(__dirname, "../../.."),
+  handler: "handler",
+  environment: {
+    CONTENT_BUCKET_NAME: "clip-content-prod",
+    CONTENT_KEY: "data/root-content.json",
+  },
+};

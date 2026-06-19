@@ -1,7 +1,7 @@
 import { useState, type FC } from "react";
 import useInquiries from "../hooks/useInquiries";
 import { useNavigate, useParams } from "react-router-dom";
-import Field from "../components/Field";
+import TextField from "../components/inquiries/TextField";
 import type { Status } from "../../../shared/types/Inquiry";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -65,10 +65,10 @@ const EditInquiry: FC = () => {
           <h3 className="mb-4 font-semibold text---text-h)">Inquiry Details</h3>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <Field label="Company" value={company} />
-            <Field label="Email" value={email} />
-            <Field label="Software" value={software} />
-            <Field label="Created" value={createdAt} />
+            <TextField label="Company" value={company} />
+            <TextField label="Email" value={email} />
+            <TextField label="Software" value={software} />
+            <TextField label="Created" value={createdAt} />
           </div>
 
           <div className="mt-6">

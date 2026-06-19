@@ -1,5 +1,10 @@
 import { useEffect, useState, type FC } from "react";
 import type { RootContent } from "../../../shared/types/RootContent";
+import TextCardSection from "../components/content/sections/TextCardSection";
+import HeroSection from "../components/content/sections/HeroSection";
+import ProcessSection from "../components/content/sections/ProcessSection";
+import ResultSection from "../components/content/sections/ResultSection";
+import ContactSection from "../components/content/sections/ContactSection";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -7,6 +12,8 @@ const Content: FC = () => {
   const [content, setContent] = useState<RootContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasEdits, setHasEdits] = useState(false);
 
   useEffect(() => {
     async function getContent() {
@@ -27,6 +34,45 @@ const Content: FC = () => {
     getContent();
   }, []);
 
+  const handleSave = async () => {
+    if (!content) return;
+
+    try {
+      setIsSaving(true);
+      setError(null);
+
+      const response = await fetch(`${API_BASE_URL}/content`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(content),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save content");
+      }
+
+      const data = await response.json();
+
+      if (data.content) {
+        setContent(data.content);
+      }
+
+      alert("Content saved successfully");
+    } catch (error) {
+      console.error(error);
+      alert("Failed to save content");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleChange = (value: RootContent) => {
+    setHasEdits(true);
+    setContent(value);
+  };
+
   if (isLoading) return <p>Loading content...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!content) return <p>No content found.</p>;
@@ -45,175 +91,56 @@ const Content: FC = () => {
 
         <button
           type="button"
+          onClick={handleSave}
+          disabled={isSaving || !hasEdits}
           className="rounded-xl bg-(--accent) px-4 py-2 font-medium text-white"
         >
-          Save
+          {isSaving ? "Saving..." : !hasEdits ? "No Changes" : "Save"}
         </button>
       </header>
 
       <form className="space-y-6">
-        <Section title="Hero">
-          <Field label="Eyebrow" value={content.hero.eyebrow} />
-          <Field label="Title" value={content.hero.title} />
-          <Textarea label="Subtitle" value={content.hero.subtitle} />
+        <HeroSection
+          section={content.hero}
+          onChange={(hero) => handleChange({ ...content, hero: hero })}
+        />
+        <TextCardSection
+          onChange={(value) => handleChange({ ...content, whatWeDo: value })}
+          title="What We Do"
+          section={content.whatWeDo}
+        />
+        <TextCardSection
+          onChange={(value) => handleChange({ ...content, services: value })}
+          title="Services"
+          section={content.services}
+        />
+        <ProcessSection
+          section={content.process}
+          onChange={(value) => handleChange({ ...content, process: value })}
+        />
+        <TextCardSection
+          onChange={(value) => handleChange({ ...content, whyClip: value })}
+          title="Why Clip"
+          section={content.whyClip}
+        />
+        <TextCardSection
+          onChange={(value) => handleChange({ ...content, bestFit: value })}
+          title="Best Fit"
+          section={content.bestFit}
+        />
 
-          <Field
-            label="Primary CTA Label"
-            value={content.hero.primaryCta.label}
-          />
-          <Field
-            label="Primary CTA Link"
-            value={content.hero.primaryCta.href}
-          />
-          <Field
-            label="Secondary CTA Label"
-            value={content.hero.secondaryCta.label}
-          />
-          <Field
-            label="Secondary CTA Link"
-            value={content.hero.secondaryCta.href}
-          />
+        <ResultSection
+          onChange={(value) => handleChange({ ...content, results: value })}
+          section={content.results}
+        />
 
-          <StringList title="Common Issues" items={content.hero.commonIssues} />
-        </Section>
-
-        <TextCardSection title="What We Do" section={content.whatWeDo} />
-        <TextCardSection title="Services" section={content.services} />
-
-        <Section title="Process">
-          <Field label="Eyebrow" value={content.process.eyebrow} />
-          <Field label="Title" value={content.process.title} />
-          <Textarea label="Description" value={content.process.description} />
-          <TextCards title="Steps" items={content.process.steps} />
-        </Section>
-
-        <TextCardSection title="Why Clip" section={content.whyClip} />
-        <TextCardSection title="Best Fit" section={content.bestFit} />
-
-        <Section title="Results">
-          <Field label="Eyebrow" value={content.results.eyebrow} />
-          <Field label="Title" value={content.results.title} />
-          <Textarea label="Description" value={content.results.description} />
-          <StringList title="Before" items={content.results.before} />
-          <StringList title="After" items={content.results.after} />
-        </Section>
-
-        <Section title="Contact">
-          <Field label="Eyebrow" value={content.contact.eyebrow} />
-          <Field label="Title" value={content.contact.title} />
-          <Textarea label="Description" value={content.contact.description} />
-          <Field label="Primary CTA" value={content.contact.primaryCta} />
-        </Section>
+        <ContactSection
+          onChange={(value) => handleChange({ ...content, contact: value })}
+          section={content.contact}
+        />
       </form>
     </section>
   );
 };
-
-function TextCardSection({
-  title,
-  section,
-}: {
-  title: string;
-  section: {
-    eyebrow: string;
-    title: string;
-    description: string;
-    items: { title: string; description: string }[];
-  };
-}) {
-  return (
-    <Section title={title}>
-      <Field label="Eyebrow" value={section.eyebrow} />
-      <Field label="Title" value={section.title} />
-      <Textarea label="Description" value={section.description} />
-      <TextCards title="Items" items={section.items} />
-    </Section>
-  );
-}
-
-function TextCards({
-  title,
-  items,
-}: {
-  title: string;
-  items: { title: string; description: string }[];
-}) {
-  return (
-    <div className="grid gap-3">
-      <h4 className="font-semibold text-(--text-h)">{title}</h4>
-
-      {items.map((item, index) => (
-        <div
-          key={`${item.title}-${index}`}
-          className="grid gap-3 rounded-xl border border-(--border) bg-(--bg) p-4"
-        >
-          <Field label={`Title ${index + 1}`} value={item.title} />
-          <Textarea
-            label={`Description ${index + 1}`}
-            value={item.description}
-          />
-        </div>
-      ))}
-    </div>
-  );
-}
-
-function StringList({ title, items }: { title: string; items: string[] }) {
-  return (
-    <div className="grid gap-3">
-      <h4 className="font-semibold text-(--text-h)">{title}</h4>
-
-      {items.map((item, index) => (
-        <Field
-          key={`${title}-${index}`}
-          label={`${title} ${index + 1}`}
-          value={item}
-        />
-      ))}
-    </div>
-  );
-}
-
-function Section({
-  title,
-  children,
-}: {
-  title: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-(--border) bg-(--social-bg) p-6 shadow-(--shadow)">
-      <h3 className="mb-5 text-lg font-semibold text-(--text-h)">{title}</h3>
-      <div className="grid gap-4">{children}</div>
-    </div>
-  );
-}
-
-function Field({ label, value = "" }: { label: string; value?: string }) {
-  return (
-    <label className="grid gap-2">
-      <span className="text-sm font-medium text-(--text-h)">{label}</span>
-      <input
-        value={value}
-        readOnly
-        className="rounded-xl border border-(--border) bg-(--bg) px-4 py-3 text-(--text-h)"
-      />
-    </label>
-  );
-}
-
-function Textarea({ label, value = "" }: { label: string; value?: string }) {
-  return (
-    <label className="grid gap-2">
-      <span className="text-sm font-medium text-(--text-h)">{label}</span>
-      <textarea
-        value={value}
-        readOnly
-        rows={4}
-        className="rounded-xl border border-(--border) bg-(--bg) px-4 py-3 text-(--text-h)"
-      />
-    </label>
-  );
-}
 
 export default Content;
