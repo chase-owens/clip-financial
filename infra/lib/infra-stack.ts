@@ -5,7 +5,12 @@ import * as nodeLambda from "aws-cdk-lib/aws-lambda-nodejs";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
 import { API_ID, API_PROPS } from "./config/api";
 import { TABLE_ID, TABLE_PROPS } from "./config/dynamodb";
-import { LAMBDA_ID, LAMBDA_PROPS } from "./config/lambda";
+import {
+  CREATE_INQUIRY_LAMBDA_ID,
+  CREATE_INQUIRY_LAMBDA_PROPS,
+  GET_INQUIRIES_LAMBDA_ID,
+  GET_INQUIRIES_LAMBDA_PROPS,
+} from "./config/lambda";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import { createBasicAuthFunctionCode } from "./functions/basic-auth";
 import { ADMIN_USERNAME } from "./config/cloudfront";
@@ -78,11 +83,18 @@ export class InfraStack extends cdk.Stack {
 
     const createInquiryLambda = new nodeLambda.NodejsFunction(
       this,
-      LAMBDA_ID,
-      LAMBDA_PROPS,
+      CREATE_INQUIRY_LAMBDA_ID,
+      CREATE_INQUIRY_LAMBDA_PROPS,
+    );
+
+    const getInquiriesLambda = new nodeLambda.NodejsFunction(
+      this,
+      GET_INQUIRIES_LAMBDA_ID,
+      GET_INQUIRIES_LAMBDA_PROPS,
     );
 
     this.inquiriesTable.grantWriteData(createInquiryLambda);
+    this.inquiriesTable.grantReadData(getInquiriesLambda);
 
     const api = new apigateway.RestApi(this, API_ID, API_PROPS);
 
@@ -107,6 +119,11 @@ export class InfraStack extends cdk.Stack {
     inquiries.addMethod(
       "POST",
       new apigateway.LambdaIntegration(createInquiryLambda),
+    );
+
+    inquiries.addMethod(
+      "GET",
+      new apigateway.LambdaIntegration(getInquiriesLambda),
     );
   }
 }

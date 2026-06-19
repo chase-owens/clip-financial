@@ -9,7 +9,7 @@ export const API_PROPS = {
   },
   defaultCorsPreflightOptions: {
     allowOrigins: apigateway.Cors.ALL_ORIGINS,
-    allowMethods: ["OPTIONS", "POST"],
+    allowMethods: ["OPTIONS", "POST", "GET"],
     allowHeaders: ["Content-Type"],
   },
 };
