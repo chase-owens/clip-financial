@@ -38,7 +38,9 @@ const Inquiries = () => {
                 {inquiries.map((inquiry) => (
                   <tr
                     key={inquiry.inquiryId}
-                    className="border-b border-(--border) last:border-b-0"
+                    className={`border-b border-(--border) last:border-b-0 ${
+                      inquiry.status === "new" ? "bg-(--accent-bg)" : ""
+                    }`}
                   >
                     <td className="px-5 py-4 font-medium text-(--text-h)">
                       {inquiry.name}

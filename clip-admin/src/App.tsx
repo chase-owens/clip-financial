@@ -11,7 +11,6 @@ const navItems: NavItem[] = [
   { label: "Dashboard", href: "/" },
   { label: "Content", href: "/content" },
   { label: "Inquiries", href: "/inquiries" },
-  { label: "Settings", href: "/settings" },
 ];
 
 export default function App() {

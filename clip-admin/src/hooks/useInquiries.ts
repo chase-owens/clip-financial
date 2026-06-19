@@ -37,11 +37,11 @@ const useInquiries = (inquiryId?: string) => {
   }, []);
 
   return {
-    count: inquiries.length,
     currentInquiry,
     error,
     inquiries,
     isLoading,
+    newInquiries: inquiries.filter(({ status }) => status === "new"),
   };
 };
 
