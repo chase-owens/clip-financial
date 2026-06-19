@@ -1,0 +1,81 @@
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+
+const dynamoClient = new DynamoDBClient({});
+const documentClient = DynamoDBDocumentClient.from(dynamoClient);
+
+type CreateInquiryPayload = {
+  name?: string;
+  email?: string;
+  company?: string;
+  software?: string;
+  message?: string;
+};
+
+const jsonResponse = (statusCode: number, body: unknown) => ({
+  statusCode,
+  headers: {
+    "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
+    "Access-Control-Allow-Headers": "Content-Type",
+    "Access-Control-Allow-Methods": "OPTIONS,POST",
+  },
+  body: JSON.stringify(body),
+});
+
+export const handler = async (event: any) => {
+  if (event.requestContext?.http?.method === "OPTIONS") {
+    return jsonResponse(200, { ok: true });
+  }
+
+  const tableName = process.env.TABLE_NAME;
+
+  if (!tableName) {
+    return jsonResponse(500, {
+      message: "Missing TABLE_NAME environment variable",
+    });
+  }
+
+  try {
+    const payload = JSON.parse(event.body || "{}") as CreateInquiryPayload;
+
+    if (!payload.name || !payload.email || !payload.message) {
+      return jsonResponse(400, {
+        message: "Name, email, and message are required",
+      });
+    }
+
+    const now = new Date().toISOString();
+
+    const inquiry = {
+      inquiryId: crypto.randomUUID(),
+      name: payload.name.trim(),
+      email: payload.email.trim().toLowerCase(),
+      company: payload.company?.trim() || null,
+      software: payload.software?.trim() || null,
+      message: payload.message.trim(),
+      status: "new",
+      notes: "",
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await documentClient.send(
+      new PutCommand({
+        TableName: tableName,
+        Item: inquiry,
+      }),
+    );
+
+    return jsonResponse(201, {
+      success: true,
+      inquiry,
+    });
+  } catch (error) {
+    console.error("CREATE_INQUIRY_ERROR", error);
+
+    return jsonResponse(500, {
+      message: "Failed to create inquiry",
+    });
+  }
+};

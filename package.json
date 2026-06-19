@@ -1,0 +1,24 @@
+{
+  "name": "clip-financial",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/chase-owens/clip-financial.git"
+  },
+  "keywords": [],
+  "author": "Chase Owens <chasejonathanowens@gmail.com>",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/chase-owens/clip-financial/issues"
+  },
+  "homepage": "https://github.com/chase-owens/clip-financial#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.1"
+  }
+}
