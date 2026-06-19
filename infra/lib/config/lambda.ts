@@ -28,3 +28,16 @@ export const GET_INQUIRIES_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
     TABLE_NAME,
   },
 };
+
+export const UPDATE_INQUIRY_LAMBDA_ID = "UpdateInquiryLambda";
+
+export const UPDATE_INQUIRY_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
+  functionName: "clip-update-inquiry-prod",
+  runtime: lambda.Runtime.NODEJS_22_X,
+  entry: path.join(__dirname, "../../../lambdas/update-inquiry/index.ts"),
+  projectRoot: path.join(__dirname, "../../.."),
+  handler: "handler",
+  environment: {
+    TABLE_NAME,
+  },
+};

@@ -10,6 +10,8 @@ import {
   CREATE_INQUIRY_LAMBDA_PROPS,
   GET_INQUIRIES_LAMBDA_ID,
   GET_INQUIRIES_LAMBDA_PROPS,
+  UPDATE_INQUIRY_LAMBDA_ID,
+  UPDATE_INQUIRY_LAMBDA_PROPS,
 } from "./config/lambda";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import { createBasicAuthFunctionCode } from "./functions/basic-auth";
@@ -93,8 +95,15 @@ export class InfraStack extends cdk.Stack {
       GET_INQUIRIES_LAMBDA_PROPS,
     );
 
+    const updateInquiriesLambda = new nodeLambda.NodejsFunction(
+      this,
+      UPDATE_INQUIRY_LAMBDA_ID,
+      UPDATE_INQUIRY_LAMBDA_PROPS,
+    );
+
     this.inquiriesTable.grantWriteData(createInquiryLambda);
     this.inquiriesTable.grantReadData(getInquiriesLambda);
+    this.inquiriesTable.grantWriteData(updateInquiriesLambda);
 
     const api = new apigateway.RestApi(this, API_ID, API_PROPS);
 
@@ -115,6 +124,7 @@ export class InfraStack extends cdk.Stack {
     });
 
     const inquiries = api.root.addResource("inquiries");
+    const inquiry = inquiries.addResource("{inquiryId}");
 
     inquiries.addMethod(
       "POST",
@@ -124,6 +134,11 @@ export class InfraStack extends cdk.Stack {
     inquiries.addMethod(
       "GET",
       new apigateway.LambdaIntegration(getInquiriesLambda),
+    );
+
+    inquiry.addMethod(
+      "PATCH",
+      new apigateway.LambdaIntegration(updateInquiriesLambda),
     );
   }
 }

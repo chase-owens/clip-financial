@@ -1,27 +1,12 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import type { InquiryBase } from "../../shared/types/Inquiry";
+import jsonResponse from "../util/jsonResponse";
 
 const dynamoClient = new DynamoDBClient({});
 const documentClient = DynamoDBDocumentClient.from(dynamoClient);
 
-type CreateInquiryPayload = {
-  name?: string;
-  email?: string;
-  company?: string;
-  software?: string;
-  message?: string;
-};
-
-const jsonResponse = (statusCode: number, body: unknown) => ({
-  statusCode,
-  headers: {
-    "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "OPTIONS,POST",
-  },
-  body: JSON.stringify(body),
-});
+type CreateInquiryPayload = {} & InquiryBase;
 
 export const handler = async (event: any) => {
   if (event.requestContext?.http?.method === "OPTIONS") {

@@ -1,11 +1,18 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Inquiry } from "../../../shared/types/Inquiry";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const useInquiries = () => {
+const useInquiries = (inquiryId?: string) => {
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const currentInquiry = useMemo(() => {
+    if (!inquiries || !inquiryId) {
+      return;
+    }
+
+    return inquiries.find((inquiry) => inquiry.inquiryId === inquiryId);
+  }, [inquiryId, inquiries]);
 
   useEffect(() => {
     async function fetchInquiries() {
@@ -29,7 +36,13 @@ const useInquiries = () => {
     fetchInquiries();
   }, []);
 
-  return { error, count: inquiries.length, inquiries, isLoading };
+  return {
+    count: inquiries.length,
+    currentInquiry,
+    error,
+    inquiries,
+    isLoading,
+  };
 };
 
 export default useInquiries;

@@ -1,3 +1,5 @@
+export type Status = "new" | "reviewed" | "quoted" | "closed";
+
 export type InquiryBase = {
   name: string;
   email: string;
@@ -8,6 +10,7 @@ export type InquiryBase = {
 
 export type Inquiry = {
   inquiryId: string;
-  status: "new" | "reviewed" | "closed";
+  status: Status;
   createdAt: string;
+  lastUpdatedAt: string;
 } & InquiryBase;
