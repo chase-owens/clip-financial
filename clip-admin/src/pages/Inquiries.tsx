@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 import useInquiries from "../hooks/useInquiries";
 import formatDate from "../utils/formatDate";
 
-export default function Inquiries() {
+const Inquiries = () => {
   const { error, inquiries, isLoading } = useInquiries();
 
   return (
@@ -70,4 +70,6 @@ export default function Inquiries() {
       </div>
     </section>
   );
-}
+};
+
+export default Inquiries;
