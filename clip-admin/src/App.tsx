@@ -1,4 +1,5 @@
 import { Outlet } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "./index.css";
 
 type NavItem = {
@@ -25,13 +26,13 @@ export default function App() {
 
         <nav className="mt-8 grid gap-2">
           {navItems.map(({ href, label }) => (
-            <a
-              href={href}
+            <NavLink
+              to={href}
               key={label}
               className="rounded-xl border border-(--border) bg-(--social-bg) px-4 py-3 text-left text-sm transition hover:border-(--accent-border)"
             >
               {label}
-            </a>
+            </NavLink>
           ))}
         </nav>
       </aside>
