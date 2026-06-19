@@ -1,5 +1,6 @@
 import type { FC } from "react";
 import type { Inquiry } from "../../../shared/types/Inquiry";
+import formatDate from "../utils/formatDate";
 
 const RecentInquiry: FC<Inquiry> = ({ name, company, createdAt, status }) => {
   return (
@@ -22,15 +23,3 @@ const RecentInquiry: FC<Inquiry> = ({ name, company, createdAt, status }) => {
 };
 
 export default RecentInquiry;
-
-function formatDate(value?: string) {
-  if (!value) return "—";
-
-  return new Intl.DateTimeFormat("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "numeric",
-    minute: "2-digit",
-  }).format(new Date(value));
-}
