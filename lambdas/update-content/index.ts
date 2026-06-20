@@ -1,8 +1,13 @@
 import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  CloudFrontClient,
+  CreateInvalidationCommand,
+} from "@aws-sdk/client-cloudfront";
 import jsonResponse from "../util/jsonResponse";
 import type { RootContent } from "../../shared/types/RootContent";
 
 const s3 = new S3Client({});
+const cloudfront = new CloudFrontClient({});
 
 const BUCKET_NAME = process.env.CONTENT_BUCKET_NAME;
 const CONTENT_KEY = process.env.CONTENT_KEY ?? "data/root-content.json";
@@ -26,6 +31,19 @@ export const handler = async (event: any) => {
         Key: CONTENT_KEY,
         Body: JSON.stringify(payload, null, 2),
         ContentType: "application/json",
+      }),
+    );
+
+    await cloudfront.send(
+      new CreateInvalidationCommand({
+        DistributionId: process.env.DISTRIBUTION_ID,
+        InvalidationBatch: {
+          CallerReference: Date.now().toString(),
+          Paths: {
+            Quantity: 1,
+            Items: ["/data/root-content.json"],
+          },
+        },
       }),
     );
 
