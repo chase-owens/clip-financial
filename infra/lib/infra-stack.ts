@@ -3,11 +3,18 @@ import { Construct } from "constructs";
 import * as dynamodb from "aws-cdk-lib/aws-dynamodb";
 import * as nodeLambda from "aws-cdk-lib/aws-lambda-nodejs";
 import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import * as events from "aws-cdk-lib/aws-events";
+import * as targets from "aws-cdk-lib/aws-events-targets";
+import * as iam from "aws-cdk-lib/aws-iam";
 import { API_ID, API_PROPS } from "./config/api";
 import { TABLE_ID, TABLE_PROPS } from "./config/dynamodb";
 import {
+  AUDIT_INQUIRY_LAMBDA_ID,
+  AUDIT_INQUIRY_LAMBDA_PROPS,
   CREATE_INQUIRY_LAMBDA_ID,
   CREATE_INQUIRY_LAMBDA_PROPS,
+  EMAIL_INQUIRY_LAMBDA_ID,
+  EMAIL_INQUIRY_LAMBDA_PROPS,
   GET_CONTENT_LAMBDA_ID,
   GET_CONTENT_LAMBDA_PROPS,
   GET_INQUIRIES_LAMBDA_ID,
@@ -23,9 +30,13 @@ import { ADMIN_USERNAME } from "./config/cloudfront";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import "dotenv/config";
+import { DetailType } from "aws-cdk-lib/aws-codestarnotifications";
+
+const AUDIT_TABLE_NAME = "clip-audit-prod";
 
 export class InfraStack extends cdk.Stack {
   public readonly inquiriesTable: dynamodb.Table;
+  public readonly auditTable: dynamodb.Table;
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
@@ -53,6 +64,12 @@ export class InfraStack extends cdk.Stack {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
       autoDeleteObjects: false,
     });
+
+    const contentBucket = s3.Bucket.fromBucketName(
+      this,
+      "ContentBucket",
+      "clip-content-prod",
+    );
 
     const adminDistribution = new cloudfront.Distribution(
       this,
@@ -85,13 +102,32 @@ export class InfraStack extends cdk.Stack {
       },
     );
 
-    const contentBucket = s3.Bucket.fromBucketName(
-      this,
-      "ContentBucket",
-      "clip-content-prod",
-    );
+    // Create Event Bus
+    const eventBus = new events.EventBus(this, "ClipsEventBus", {
+      eventBusName: "clip-events-prod",
+    });
+
+    // Create event rule - create inquiry
+    const inquiryCreatedRule = new events.Rule(this, "InquiryCreatedRule", {
+      eventBus,
+      eventPattern: {
+        source: ["clip.inquiries"],
+        detailType: ["InquiryCreated"],
+      },
+    });
+
+    // Attach target consumers
 
     this.inquiriesTable = new dynamodb.Table(this, TABLE_ID, TABLE_PROPS);
+    this.auditTable = new dynamodb.Table(this, "ClipsAuditTable", {
+      tableName: AUDIT_TABLE_NAME,
+      partitionKey: {
+        name: "auditId",
+        type: dynamodb.AttributeType.STRING,
+      },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.RETAIN,
+    });
 
     const createInquiryLambda = new nodeLambda.NodejsFunction(
       this,
@@ -123,12 +159,42 @@ export class InfraStack extends cdk.Stack {
       UPDATE_CONTENT_LAMBDA_PROPS,
     );
 
+    const auditInquiryLambda = new nodeLambda.NodejsFunction(
+      this,
+      AUDIT_INQUIRY_LAMBDA_ID,
+      AUDIT_INQUIRY_LAMBDA_PROPS,
+    );
+
+    const emailInquiryLambda = new nodeLambda.NodejsFunction(
+      this,
+      EMAIL_INQUIRY_LAMBDA_ID,
+      EMAIL_INQUIRY_LAMBDA_PROPS,
+    );
+
+    emailInquiryLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["ses:SendEmail", "ses:SendRawEmail"],
+        resources: ["*"],
+      }),
+    );
+
     contentBucket.grantRead(getContentLambda);
     contentBucket.grantWrite(updateContentLambda);
 
     this.inquiriesTable.grantWriteData(createInquiryLambda);
     this.inquiriesTable.grantReadData(getInquiriesLambda);
     this.inquiriesTable.grantWriteData(updateInquiriesLambda);
+
+    this.auditTable.grantWriteData(auditInquiryLambda);
+
+    eventBus.grantPutEventsTo(createInquiryLambda);
+
+    inquiryCreatedRule.addTarget(
+      new targets.LambdaFunction(auditInquiryLambda),
+    );
+    inquiryCreatedRule.addTarget(
+      new targets.LambdaFunction(emailInquiryLambda),
+    );
 
     const api = new apigateway.RestApi(this, API_ID, API_PROPS);
 

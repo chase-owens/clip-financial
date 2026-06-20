@@ -13,6 +13,7 @@ export const CREATE_INQUIRY_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
   handler: "handler",
   environment: {
     TABLE_NAME,
+    EVENT_BUS_NAME: "clip-events-prod",
   },
 };
 
@@ -67,5 +68,32 @@ export const UPDATE_CONTENT_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
   environment: {
     CONTENT_BUCKET_NAME: "clip-content-prod",
     CONTENT_KEY: "data/root-content.json",
+  },
+};
+
+export const AUDIT_INQUIRY_LAMBDA_ID = "AuditInquiryLambda";
+
+export const AUDIT_INQUIRY_LAMBDA_PROPS = {
+  functionName: "clip-audit-inquiry-prod",
+  runtime: lambda.Runtime.NODEJS_22_X,
+  entry: path.join(__dirname, "../../../lambdas/audit-inquiry/index.ts"),
+  projectRoot: path.join(__dirname, "../../.."),
+  handler: "handler",
+  environment: {
+    TABLE_NAME: "clip-audit-prod",
+  },
+};
+
+export const EMAIL_INQUIRY_LAMBDA_ID = "EmailInquiryLambda";
+
+export const EMAIL_INQUIRY_LAMBDA_PROPS = {
+  functionName: "clip-email-prod",
+  runtime: lambda.Runtime.NODEJS_22_X,
+  entry: path.join(__dirname, "../../../lambdas/email-inquiry/index.ts"),
+  projectRoot: path.join(__dirname, "../../.."),
+  handler: "handler",
+  environment: {
+    FROM_EMAIL: "chasejonathanowens@gmail.com",
+    TO_EMAIL: "chasejonathanowens@gmail.com",
   },
 };

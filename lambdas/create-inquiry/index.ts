@@ -1,10 +1,15 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, PutCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  EventBridgeClient,
+  PutEventsCommand,
+} from "@aws-sdk/client-eventbridge";
 import type { InquiryBase } from "../../shared/types/Inquiry";
 import jsonResponse from "../util/jsonResponse";
 
 const dynamoClient = new DynamoDBClient({});
 const documentClient = DynamoDBDocumentClient.from(dynamoClient);
+const eventBridge = new EventBridgeClient({});
 
 type CreateInquiryPayload = {} & InquiryBase;
 
@@ -49,6 +54,19 @@ export const handler = async (event: any) => {
       new PutCommand({
         TableName: tableName,
         Item: inquiry,
+      }),
+    );
+
+    await eventBridge.send(
+      new PutEventsCommand({
+        Entries: [
+          {
+            EventBusName: process.env.EVENT_BUS_NAME,
+            Source: "clip.inquiries",
+            DetailType: "InquiryCreated",
+            Detail: JSON.stringify(inquiry),
+          },
+        ],
       }),
     );
 
