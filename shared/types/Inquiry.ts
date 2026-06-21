@@ -2,6 +2,7 @@ export type Status = "new" | "reviewed" | "quoted" | "closed";
 
 export type InquiryBase = {
   name: string;
+  lastName?: string;
   email: string;
   company?: string;
   software?: string;
