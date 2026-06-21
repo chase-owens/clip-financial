@@ -1,11 +1,11 @@
 <script lang="ts">
 	import type { ContactContent } from '../../../../shared/types/RootContent';
 	import { createInquiry } from '$lib/api/inquiries';
-	import { preventDefault } from 'svelte/legacy';
 
 	const { contact }: { contact: ContactContent } = $props();
 
 	let name = $state('');
+  let lastName = $state('')
 	let email = $state('');
 	let company = $state('');
 	let software = $state('');
@@ -23,6 +23,7 @@
 		try {
 			await createInquiry({
 				name,
+        lastName,
 				email,
 				company,
 				software,
@@ -30,6 +31,7 @@
 			});
 
 			name = '';
+      lastName = '';
 			email = '';
 			company = '';
 			software = '';
@@ -71,6 +73,8 @@
 					class="rounded-2xl border border-slate-300 bg-white px-4 py-3 outline-none focus:border-blue-600"
 					placeholder="Name"
 				/>
+        <input name='lastName' hidden
+					bind:value={lastName}/>
 				<input
 					required
 					bind:value={email}

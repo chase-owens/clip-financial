@@ -50,6 +50,11 @@ export const handler = async (event: any) => {
       updatedAt: now,
     };
 
+    if (payload.lastName) {
+      const lastNameInquiry = { ...inquiry, lastName: payload.lastName.trim() };
+      return jsonResponse(200, { success: true, inquiry: lastNameInquiry });
+    }
+
     await documentClient.send(
       new PutCommand({
         TableName: tableName,
@@ -70,7 +75,7 @@ export const handler = async (event: any) => {
       }),
     );
 
-    return jsonResponse(201, {
+    return jsonResponse(200, {
       success: true,
       inquiry,
     });
