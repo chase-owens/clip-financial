@@ -9,7 +9,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const EditInquiry: FC = () => {
   const navigate = useNavigate();
   const { inquiryId } = useParams();
-  const { currentInquiry } = useInquiries(inquiryId);
+  const { currentInquiry } = useInquiries({ inquiryId });
 
   const [hasEdits, setHasEdits] = useState(false);
   const [notes, setNotes] = useState("");

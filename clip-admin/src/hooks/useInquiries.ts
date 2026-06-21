@@ -1,23 +1,53 @@
-import { useEffect, useMemo, useState } from "react";
-import type { Inquiry } from "../../../shared/types/Inquiry";
+import { useEffect, useState } from "react";
+import type { Inquiry, Status } from "../../../shared/types/Inquiry";
+
+type UseInquiriesProps = {
+  inquiryId?: string;
+  status?: Status;
+};
+
+const buildInquiriesUrl = ({
+  inquiryId,
+  query,
+}: {
+  inquiryId?: string;
+  query?: string;
+}) => {
+  const base = `${API_BASE_URL}/inquiries`;
+
+  if (inquiryId) {
+    return `${base}/${inquiryId}`;
+  }
+
+  if (query) {
+    return `${base}?${query}`;
+  }
+
+  return base;
+};
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const useInquiries = (inquiryId?: string) => {
+const useInquiries = (props: UseInquiriesProps = {}) => {
+  const { inquiryId, status } = props;
+
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const currentInquiry = useMemo(() => {
-    if (!inquiries || !inquiryId) {
-      return;
-    }
-
-    return inquiries.find((inquiry) => inquiry.inquiryId === inquiryId);
-  }, [inquiryId, inquiries]);
+  const [currentInquiry, setCurrentInquiry] = useState<Inquiry | null>(null);
 
   useEffect(() => {
     async function fetchInquiries() {
       try {
-        const response = await fetch(`${API_BASE_URL}/inquiries`);
+        const params = new URLSearchParams();
+
+        if (status) {
+          params.set("status", status);
+        }
+
+        const query = params.toString();
+        const url = buildInquiriesUrl({ inquiryId, query });
+
+        const response = await fetch(url);
 
         if (!response.ok) {
           throw new Error("Failed to fetch inquiries");
@@ -25,7 +55,13 @@ const useInquiries = (inquiryId?: string) => {
 
         const data = await response.json();
 
-        setInquiries(data.inquiries ?? []);
+        if (data.inquiry) {
+          setCurrentInquiry(data.inquiry);
+        }
+
+        if (data.inquiries) {
+          setInquiries(data.inquiries);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
@@ -34,14 +70,13 @@ const useInquiries = (inquiryId?: string) => {
     }
 
     fetchInquiries();
-  }, []);
+  }, [status, inquiryId]);
 
   return {
     currentInquiry,
     error,
     inquiries,
     isLoading,
-    newInquiries: inquiries.filter(({ status }) => status === "new"),
   };
 };
 

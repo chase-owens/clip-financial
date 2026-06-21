@@ -25,7 +25,7 @@ export const handler = async (event: any) => {
 
   try {
     const payload = JSON.parse(event.body || "{}") as UpdateContentPayload;
-    const result = await s3.send(
+    await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: CONTENT_KEY,
