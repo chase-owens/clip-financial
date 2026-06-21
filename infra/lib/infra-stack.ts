@@ -201,6 +201,13 @@ export class InfraStack extends cdk.Stack {
       UPDATE_CONTENT_LAMBDA_PROPS,
     );
 
+    updateContentLambda.addToRolePolicy(
+      new iam.PolicyStatement({
+        actions: ["cloudfront:CreateInvalidation"],
+        resources: ["*"],
+      }),
+    );
+
     const auditInquiryLambda = new nodeLambda.NodejsFunction(
       this,
       AUDIT_INQUIRY_LAMBDA_ID,
@@ -221,7 +228,7 @@ export class InfraStack extends cdk.Stack {
     );
 
     contentBucket.grantRead(getContentLambda);
-    contentBucket.grantWrite(updateContentLambda);
+    contentBucket.grantReadWrite(updateContentLambda);
 
     this.inquiriesTable.grantWriteData(createInquiryLambda);
     this.inquiriesTable.grantReadData(getInquiriesLambda);
@@ -294,7 +301,6 @@ export class InfraStack extends cdk.Stack {
       "GET",
       new apigateway.LambdaIntegration(getContentLambda),
     );
-
     content.addMethod(
       "PUT",
       new apigateway.LambdaIntegration(updateContentLambda),

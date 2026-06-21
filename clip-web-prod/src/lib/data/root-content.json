@@ -1,4 +1,6 @@
 {
+	"version": 1,
+	"updatedAt": "2026-06-21T06:45:00.000Z",
 	"hero": {
 		"eyebrow": "Finance Operations Consulting",
 		"title": "Build a finance process your team can trust.",
@@ -19,7 +21,6 @@
 			"Reports are late, unclear, or rebuilt manually every month"
 		]
 	},
-
 	"whatWeDo": {
 		"eyebrow": "What We Actually Do",
 		"title": "We connect the workflow to the decisions it needs to support.",
@@ -39,11 +40,10 @@
 			}
 		]
 	},
-
 	"services": {
 		"eyebrow": "Core Services",
 		"title": "We fix the workflow behind the reporting problem.",
-		"description": "The work starts with how the process actually runs today — not how the software was supposed to work on paper.",
+		"description": "The work starts with how the process actually runs today â€” not how the software was supposed to work on paper.",
 		"items": [
 			{
 				"title": "Payment Workflow Review",
@@ -59,7 +59,6 @@
 			}
 		]
 	},
-
 	"process": {
 		"eyebrow": "Process",
 		"title": "We start with the decisions your finance team needs to support.",
@@ -83,7 +82,6 @@
 			}
 		]
 	},
-
 	"whyClip": {
 		"eyebrow": "Why Clip Financial",
 		"title": "A practical approach to finance operations.",
@@ -103,7 +101,6 @@
 			}
 		]
 	},
-
 	"bestFit": {
 		"eyebrow": "Best Fit",
 		"title": "Built for finance teams that have outgrown the old way of working.",
@@ -127,7 +124,6 @@
 			}
 		]
 	},
-
 	"results": {
 		"eyebrow": "Results",
 		"title": "What better looks like.",
@@ -147,7 +143,6 @@
 			"Confidence in the financial information being reported"
 		]
 	},
-
 	"contact": {
 		"eyebrow": "Start Here",
 		"title": "Build a resilient finance process.",

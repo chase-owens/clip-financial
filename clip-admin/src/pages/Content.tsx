@@ -46,7 +46,7 @@ const Content: FC = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(content),
+        body: JSON.stringify({ expectedVersion: content.version, content }),
       });
 
       if (!response.ok) {
@@ -57,7 +57,7 @@ const Content: FC = () => {
 
       if (data.content) {
         setHasEdits(false);
-        setContent(data.content);
+        setContent(data.content.content);
       }
 
       alert("Content saved successfully");

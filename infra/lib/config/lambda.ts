@@ -81,6 +81,7 @@ export const UPDATE_CONTENT_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
   environment: {
     CONTENT_BUCKET_NAME: "clip-content-prod",
     CONTENT_KEY: "data/root-content.json",
+    DISTRIBUTION_ID: "ETDTQJFQV9USJ",
   },
 };
 

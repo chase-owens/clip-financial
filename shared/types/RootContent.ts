@@ -73,6 +73,8 @@ export type ContactContent = {
 };
 
 export type RootContent = {
+  version: number;
+  updatedAt: string;
   hero: HeroContent;
   whatWeDo: WhatWeDoContent;
   services: ServicesContent;
