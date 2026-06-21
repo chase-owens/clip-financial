@@ -15,13 +15,13 @@ const actions = [
 ];
 
 const Dashboard = () => {
-  const { newInquiries, isLoading } = useInquiries();
+  const { inquiries, isLoading } = useInquiries({ status: "new" });
   return (
     <>
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <DashboardCard
           label="New Inquiries"
-          value={`${isLoading ? "loading" : newInquiries.length}`}
+          value={`${isLoading ? "loading" : inquiries.length}`}
         />
         {/* <DashboardCard label="Content Sections" value="4" />
         <DashboardCard label="Published Site" value="Live" />
@@ -31,7 +31,7 @@ const Dashboard = () => {
       <section className="mt-4 grid gap-4 xl:grid-cols-[2fr_1fr]">
         <div className="rounded-2xl border border---border) bg-(--social-bg) p-5 shadow---shadow)">
           <h3 className="font-semibold text-(--text-h)">Recent Inquiries</h3>
-          {newInquiries.map((inquiry) => (
+          {inquiries.map((inquiry) => (
             <RecentInquiry key={inquiry.inquiryId} {...inquiry} />
           ))}
         </div>

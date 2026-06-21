@@ -30,6 +30,19 @@ export const GET_INQUIRIES_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
   },
 };
 
+export const GET_INQUIRY_LAMBDA_ID = "GetInquiryLambda";
+
+export const GET_INQUIRY_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
+  functionName: "clip-get-inquiry-prod",
+  runtime: lambda.Runtime.NODEJS_22_X,
+  entry: path.join(__dirname, "../../../lambdas/get-inquiry/index.ts"),
+  projectRoot: path.join(__dirname, "../../.."),
+  handler: "handler",
+  environment: {
+    TABLE_NAME,
+  },
+};
+
 export const UPDATE_INQUIRY_LAMBDA_ID = "UpdateInquiryLambda";
 
 export const UPDATE_INQUIRY_LAMBDA_PROPS: nodeLambda.NodejsFunctionProps = {
@@ -92,8 +105,5 @@ export const EMAIL_INQUIRY_LAMBDA_PROPS = {
   entry: path.join(__dirname, "../../../lambdas/email-inquiry/index.ts"),
   projectRoot: path.join(__dirname, "../../.."),
   handler: "handler",
-  environment: {
-    FROM_EMAIL: "chasejonathanowens@gmail.com",
-    TO_EMAIL: "chasejonathanowens@gmail.com",
-  },
+  environment: {},
 };
