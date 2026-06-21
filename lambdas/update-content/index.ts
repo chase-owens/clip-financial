@@ -1,10 +1,16 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import {
   CloudFrontClient,
   CreateInvalidationCommand,
 } from "@aws-sdk/client-cloudfront";
 import jsonResponse from "../util/jsonResponse";
 import type { RootContent } from "../../shared/types/RootContent";
+import { verify } from "node:crypto";
+import { version } from "node:os";
 
 const s3 = new S3Client({});
 const cloudfront = new CloudFrontClient({});
@@ -12,7 +18,7 @@ const cloudfront = new CloudFrontClient({});
 const BUCKET_NAME = process.env.CONTENT_BUCKET_NAME;
 const CONTENT_KEY = process.env.CONTENT_KEY ?? "data/root-content.json";
 
-type UpdateContentPayload = {} & RootContent;
+type UpdateContentPayload = { expectedVersion: number; content: RootContent };
 
 export const handler = async (event: any) => {
   if (event.requestContext?.http?.method === "OPTIONS") {
@@ -25,11 +31,39 @@ export const handler = async (event: any) => {
 
   try {
     const payload = JSON.parse(event.body || "{}") as UpdateContentPayload;
+    const currentContent = await s3.send(
+      new GetObjectCommand({
+        Bucket: BUCKET_NAME,
+        Key: CONTENT_KEY,
+      }),
+    );
+
+    const currentContentString = await currentContent.Body?.transformToString();
+
+    if (!currentContentString) {
+      return jsonResponse(500, { message: "Current content file is empty" });
+    }
+
+    const rootContent = JSON.parse(currentContentString) as RootContent;
+    const expectedVersion = payload.expectedVersion;
+
+    if (expectedVersion !== rootContent.version) {
+      return jsonResponse(409, {
+        message: "Content version is different - refresh and start over",
+      });
+    }
+
+    const nextContent: RootContent = {
+      ...payload.content,
+      version: rootContent.version + 1,
+      updatedAt: new Date().toISOString(),
+    };
+
     await s3.send(
       new PutObjectCommand({
         Bucket: BUCKET_NAME,
         Key: CONTENT_KEY,
-        Body: JSON.stringify(payload, null, 2),
+        Body: JSON.stringify(nextContent, null, 2),
         ContentType: "application/json",
       }),
     );
