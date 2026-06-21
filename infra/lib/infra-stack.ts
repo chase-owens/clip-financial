@@ -130,10 +130,17 @@ export class InfraStack extends cdk.Stack {
       },
     });
 
-    const auditQueue = new sqs.Queue(this, "AuditQueue", {
-      queueName: "clip-audit-queue-prod",
+    const auditDlq = new sqs.Queue(this, "AuditDlq", {
+      queueName: "clip-audit-dlq-prod",
     });
 
+    const auditQueue = new sqs.Queue(this, "AuditQueue", {
+      queueName: "clip-audit-queue-prod",
+      deadLetterQueue: {
+        queue: auditDlq,
+        maxReceiveCount: 5,
+      },
+    });
     //build tables
     this.inquiriesTable = new dynamodb.Table(this, TABLE_ID, TABLE_PROPS);
 

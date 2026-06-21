@@ -1,42 +1,166 @@
-# sv
+# Clip Financial
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Clip Financial is a finance workflow consulting platform built with SvelteKit and AWS. The application provides a public-facing website for prospective clients, inquiry submission workflows, and integration with a serverless AWS backend for inquiry processing, auditing, and notifications.
 
-## Creating a project
+## Features
 
-If you're seeing this, you've probably already done this step. Congrats!
+### Marketing Website
 
-```sh
-# create a new project
-npx sv create my-app
+- Responsive SvelteKit website
+- Finance workflow consulting service information
+- Discovery, assessment, and implementation process overview
+- Contact and inquiry submission forms
+- SEO metadata and Open Graph support
+
+### Inquiry Management
+
+- Submit workflow review requests
+- Store inquiries in DynamoDB
+- Inquiry status tracking
+- New inquiry dashboard indicators
+- Individual inquiry detail views
+- Inquiry filtering by status
+- Inquiry history and audit trail support
+
+### Event-Driven Architecture
+
+- Inquiry creation events published to EventBridge
+- Fan-out processing to multiple consumers
+- Independent notification and audit workflows
+- Failure isolation between consumers
+
+### Notifications
+
+- SES email notifications
+- Secrets Manager integration for email configuration
+- Event-driven notification processing
+
+### Auditing
+
+- Dedicated audit records stored in DynamoDB
+- SQS-backed audit processing
+- Message retry support
+- Event history tracking
+
+### Security
+
+- IAM least-privilege permissions
+- AWS Secrets Manager for sensitive configuration
+- Environment-based configuration
+- CloudFront protected admin application
+
+### Infrastructure
+
+- AWS CDK Infrastructure as Code
+- API Gateway
+- Lambda
+- DynamoDB
+- EventBridge
+- SQS
+- SES
+- Secrets Manager
+- S3
+- CloudFront
+
+### CI/CD
+
+- GitHub Actions deployment pipeline
+- Automated builds
+- Infrastructure deployment through CDK
+- CloudFront cache invalidation
+
+---
+
+## Architecture
+
+```text
+User
+ ↓
+SvelteKit Website
+ ↓
+API Gateway
+ ↓
+Lambda
+ ↓
+DynamoDB
+
+Inquiry Created
+ ↓
+EventBridge
+ ├── Email Consumer
+ │     ↓
+ │    SES
+ │
+ └── Audit Queue
+       ↓
+      SQS
+       ↓
+   Audit Lambda
+       ↓
+    DynamoDB
 ```
 
-To recreate this project with the same configuration:
+---
 
-```sh
-# recreate this project
-npx sv@0.16.1 create --template minimal --types ts --add prettier eslint tailwindcss="plugins:typography,forms" --install npm accounting-consult-prod
+## Technology Stack
+
+### Frontend
+
+- SvelteKit
+- TypeScript
+- Tailwind CSS
+
+### Backend
+
+- AWS Lambda
+- API Gateway
+- DynamoDB
+- EventBridge
+- SQS
+- SES
+- Secrets Manager
+
+### Infrastructure
+
+- AWS CDK
+- CloudFront
+- S3
+- IAM
+
+---
+
+## Development
+
+Install dependencies:
+
+```bash
+npm install
 ```
 
-## Developing
+Run locally:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```sh
+```bash
 npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
 ```
 
-## Building
+Build:
 
-To create a production version of your app:
-
-```sh
+```bash
 npm run build
 ```
 
-You can preview the production build with `npm run preview`.
+Preview production build:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+```bash
+npm run preview
+```
+
+---
+
+## Repository Structure
+
+- `clip-web` — Public SvelteKit website
+- `clip-admin` — React administrative application
+- `infra` — AWS CDK infrastructure definitions
+- `lambdas` — Serverless backend services
+- `shared` — Shared TypeScript types and contracts
