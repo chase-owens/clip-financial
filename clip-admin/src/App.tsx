@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { NavLink } from "react-router-dom";
 import "./index.css";
+import { useAuth } from "./auth/useAuth";
 
 type NavItem = {
   label: string;
@@ -14,6 +15,8 @@ const navItems: NavItem[] = [
 ];
 
 export default function App() {
+  const { signOut } = useAuth();
+
   return (
     <div className="min-h-screen bg-(--bg) text-(--text) md:grid md:grid-cols-[260px_1fr]">
       <aside className="border-b border-(--border) p-6 md:border-r md:border-b-0">
@@ -33,6 +36,13 @@ export default function App() {
               {label}
             </NavLink>
           ))}
+          <button
+            type="button"
+            onClick={signOut}
+            className="rounded-xl border border-(--border) bg-(--social-bg) px-4 py-3 text-left text-sm transition hover:border-(--accent-border)text-left text-red-400 transition-colors hover:text-red-300"
+          >
+            Log Out
+          </button>
         </nav>
       </aside>
 
