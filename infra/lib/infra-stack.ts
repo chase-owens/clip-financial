@@ -34,10 +34,6 @@ import {
   UPDATE_INQUIRY_LAMBDA_ID,
   UPDATE_INQUIRY_LAMBDA_PROPS,
 } from "./config/lambda";
-import { ADMIN_USERNAME } from "./config/cloudfront";
-
-import "dotenv/config";
-import { createBasicAuthFunctionCode } from "./functions/basic-auth";
 
 const AUDIT_TABLE_NAME = "clip-audit-prod";
 
@@ -47,23 +43,6 @@ export class InfraStack extends cdk.Stack {
 
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
-
-    const adminPassword = process.env.ADMIN_PASSWORD;
-
-    if (!adminPassword) {
-      throw new Error("ADMIN_PASSWORD is required");
-    }
-
-    const basicAuthFunction = new cloudfront.Function(
-      this,
-      "ClipAdminBasicAuthFunction",
-      {
-        functionName: "clip-admin-basic-auth",
-        code: cloudfront.FunctionCode.fromInline(
-          createBasicAuthFunctionCode(ADMIN_USERNAME, adminPassword),
-        ),
-      },
-    );
 
     const adminBucket = new s3.Bucket(this, "ClipAdminBucket", {
       bucketName: "clip-admin-prod",
@@ -87,12 +66,7 @@ export class InfraStack extends cdk.Stack {
           origin: origins.S3BucketOrigin.withOriginAccessControl(adminBucket),
           viewerProtocolPolicy:
             cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
-          functionAssociations: [
-            {
-              function: basicAuthFunction,
-              eventType: cloudfront.FunctionEventType.VIEWER_REQUEST,
-            },
-          ],
+          functionAssociations: [],
         },
         errorResponses: [
           {
