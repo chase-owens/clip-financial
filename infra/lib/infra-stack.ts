@@ -11,6 +11,7 @@ import * as s3 from "aws-cdk-lib/aws-s3";
 import * as origins from "aws-cdk-lib/aws-cloudfront-origins";
 import * as cloudfront from "aws-cdk-lib/aws-cloudfront";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
+import * as cognito from "aws-cdk-lib/aws-cognito";
 
 import { Construct } from "constructs";
 
@@ -82,6 +83,55 @@ export class InfraStack extends cdk.Stack {
         ],
       },
     );
+
+    const adminUserPool = new cognito.UserPool(this, "AdminUserPool", {
+      userPoolName: "clip-admin-user-pool-prod",
+      selfSignUpEnabled: false,
+      signInAliases: {
+        email: true,
+      },
+      autoVerify: {
+        email: true,
+      },
+    });
+
+    const adminUserPoolClient = new cognito.UserPoolClient(
+      this,
+      "AdminUserPoolClient",
+      {
+        userPool: adminUserPool,
+        userPoolClientName: "clip-admin-user-pool-client-prod",
+        generateSecret: false,
+        oAuth: {
+          flows: { authorizationCodeGrant: true },
+          scopes: [
+            cognito.OAuthScope.OPENID,
+            cognito.OAuthScope.EMAIL,
+            cognito.OAuthScope.PROFILE,
+          ],
+          callbackUrls: [
+            "http://localhost:5173",
+            "https://d3gof5xisrxk0d.cloudfront.net",
+          ],
+          logoutUrls: [
+            "http://localhost:5173/login",
+            "https://d3gof5xisrxk0d.cloudfront.net/login",
+          ],
+        },
+      },
+    );
+
+    new cdk.CfnOutput(this, "ClipAdminCognitoAuthority", {
+      value: adminUserPool.userPoolProviderUrl,
+    });
+
+    new cdk.CfnOutput(this, "ClipAdminCognitoClientId", {
+      value: adminUserPoolClient.userPoolClientId,
+    });
+
+    new cdk.CfnOutput(this, "ClipAdminCognitoDomain", {
+      value: "https://clip-admin-prod.auth.us-east-1.amazoncognito.com",
+    });
 
     // Add secrets
     const fromEmailSecret = new secretsmanager.Secret(this, "FromEmailSecret", {
