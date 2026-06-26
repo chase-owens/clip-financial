@@ -6,15 +6,19 @@ import type { RootContent } from "../../../shared/types/RootContent";
 type SaveState = "clean" | "dirty" | "saved";
 
 const useContent = () => {
-  const { accessToken } = useAuth();
+  const { idToken } = useAuth();
   const [content, setContent] = useState<RootContent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("clean");
-  const apiClient = useMemo(() => createApiClient(accessToken), [accessToken]);
+  const apiClient = useMemo(() => createApiClient(idToken), [idToken]);
 
   useEffect(() => {
+    if (!idToken) {
+      return;
+    }
+
     const getContent = async () => {
       try {
         const response = await apiClient.get("/content");
@@ -31,7 +35,7 @@ const useContent = () => {
     };
 
     getContent();
-  }, [apiClient]);
+  }, [apiClient, idToken]);
 
   const handleChange = useCallback((value: RootContent) => {
     setSaveState("dirty");

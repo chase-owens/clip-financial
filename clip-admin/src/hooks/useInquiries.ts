@@ -29,12 +29,12 @@ const buildInquiriesUrl = ({
 };
 
 const useInquiries = ({ inquiryId, status }: UseInquiriesProps = {}) => {
-  const { accessToken } = useAuth();
+  const { idToken } = useAuth();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentInquiry, setCurrentInquiry] = useState<Inquiry | null>(null);
-  const apiClient = useMemo(() => createApiClient(accessToken), [accessToken]);
+  const apiClient = useMemo(() => createApiClient(idToken), [idToken]);
   const params = new URLSearchParams();
 
   if (status) {
@@ -45,10 +45,14 @@ const useInquiries = ({ inquiryId, status }: UseInquiriesProps = {}) => {
   const url = buildInquiriesUrl({ inquiryId, query });
 
   useEffect(() => {
+    if (!idToken) {
+      return;
+    }
     const fetchInquiries = async () => {
       try {
-        const { inquiries: apiInquiries, inquiry: apiInquiry } =
-          await apiClient.get(url);
+        const data = await apiClient.get(url);
+        const { inquiries: apiInquiries, inquiry: apiInquiry } = data;
+        console.log("🚀 ~ fetchInquiries ~ apiInquiries:", data);
 
         if (apiInquiries) {
           setInquiries(apiInquiries);
@@ -66,7 +70,7 @@ const useInquiries = ({ inquiryId, status }: UseInquiriesProps = {}) => {
     };
 
     fetchInquiries();
-  }, [apiClient, url]);
+  }, [idToken, apiClient, url]);
 
   const updateInquiry = async (
     inquiryId: string,
