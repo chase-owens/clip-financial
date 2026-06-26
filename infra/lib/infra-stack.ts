@@ -95,6 +95,12 @@ export class InfraStack extends cdk.Stack {
       },
     });
 
+    adminUserPool.addDomain("ClipAdminCognitoDomain", {
+      cognitoDomain: {
+        domainPrefix: "clip-admin-prod",
+      },
+    });
+
     const adminUserPoolClient = new cognito.UserPoolClient(
       this,
       "AdminUserPoolClient",
@@ -130,7 +136,7 @@ export class InfraStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "ClipAdminCognitoDomain", {
-      value: "https://clip-admin-prod.auth.us-east-1.amazoncognito.com",
+      value: `https://clip-admin-prod.auth.${this.region}.amazoncognito.com`,
     });
 
     // Add secrets

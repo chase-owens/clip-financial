@@ -1,5 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Inquiry, Status } from "../../../shared/types/Inquiry";
+import { createApiClient } from "../api/client";
+import { useAuth } from "../auth/useAuth";
 
 type UseInquiriesProps = {
   inquiryId?: string;
@@ -13,7 +15,7 @@ const buildInquiriesUrl = ({
   inquiryId?: string;
   query?: string;
 }) => {
-  const base = `${API_BASE_URL}/inquiries`;
+  const base = `/inquiries`;
 
   if (inquiryId) {
     return `${base}/${inquiryId}`;
@@ -26,57 +28,62 @@ const buildInquiriesUrl = ({
   return base;
 };
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-const useInquiries = (props: UseInquiriesProps = {}) => {
-  const { inquiryId, status } = props;
-
+const useInquiries = ({ inquiryId, status }: UseInquiriesProps = {}) => {
+  const { accessToken } = useAuth();
   const [inquiries, setInquiries] = useState<Inquiry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentInquiry, setCurrentInquiry] = useState<Inquiry | null>(null);
+  const apiClient = useMemo(() => createApiClient(accessToken), [accessToken]);
+  const params = new URLSearchParams();
+
+  if (status) {
+    params.set("status", status);
+  }
+
+  const query = params.toString();
+  const url = buildInquiriesUrl({ inquiryId, query });
 
   useEffect(() => {
-    async function fetchInquiries() {
+    const fetchInquiries = async () => {
       try {
-        const params = new URLSearchParams();
+        const { inquiries: apiInquiries, inquiry: apiInquiry } =
+          await apiClient.get(url);
 
-        if (status) {
-          params.set("status", status);
+        if (apiInquiries) {
+          setInquiries(apiInquiries);
         }
 
-        const query = params.toString();
-        const url = buildInquiriesUrl({ inquiryId, query });
-
-        const response = await fetch(url);
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch inquiries");
+        if (apiInquiry) {
+          setCurrentInquiry(apiInquiry);
         }
-
-        const data = await response.json();
-
-        if (data.inquiry) {
-          setCurrentInquiry(data.inquiry);
-        }
-
-        if (data.inquiries) {
-          setInquiries(data.inquiries);
-        }
+        setError(null);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Something went wrong");
       } finally {
         setIsLoading(false);
       }
-    }
+    };
 
     fetchInquiries();
-  }, [status, inquiryId]);
+  }, [apiClient, url]);
+
+  const updateInquiry = async (
+    inquiryId: string,
+    updates: {
+      status: Status;
+      notes: string;
+    },
+  ) => {
+    return apiClient.patch(`/inquiries/${inquiryId}`, updates);
+  };
 
   return {
     currentInquiry,
     error,
     inquiries,
     isLoading,
+    updateInquiry,
   };
 };
 

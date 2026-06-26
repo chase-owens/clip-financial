@@ -2,6 +2,7 @@ import * as apigateway from "aws-cdk-lib/aws-apigateway";
 
 export const API_ID = "ClipApi";
 export const API_NAME = "clip-api-prod";
+
 export const API_PROPS = {
   restApiName: API_NAME,
   deployOptions: {
@@ -10,6 +11,6 @@ export const API_PROPS = {
   defaultCorsPreflightOptions: {
     allowOrigins: apigateway.Cors.ALL_ORIGINS,
     allowMethods: ["OPTIONS", "POST", "GET", "PATCH", "PUT"],
-    allowHeaders: ["Content-Type"],
+    allowHeaders: ["Content-Type", "Authorization"],
   },
 };

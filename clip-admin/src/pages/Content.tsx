@@ -1,78 +1,15 @@
-import { useEffect, useState, type FC } from "react";
-import type { RootContent } from "../../../shared/types/RootContent";
+import type { FC } from "react";
 import TextCardSection from "../components/content/sections/TextCardSection";
 import HeroSection from "../components/content/sections/HeroSection";
 import ProcessSection from "../components/content/sections/ProcessSection";
 import ResultSection from "../components/content/sections/ResultSection";
 import ContactSection from "../components/content/sections/ContactSection";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+import useContent from "../hooks/useContent";
+import clsx from "clsx";
 
 const Content: FC = () => {
-  const [content, setContent] = useState<RootContent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [hasEdits, setHasEdits] = useState(false);
-
-  useEffect(() => {
-    async function getContent() {
-      try {
-        const response = await fetch(`${API_BASE_URL}/content`);
-
-        if (!response.ok) throw new Error("Failed to fetch content");
-
-        const data = await response.json();
-        setContent(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    getContent();
-  }, []);
-
-  const handleSave = async () => {
-    if (!content) return;
-
-    try {
-      setIsSaving(true);
-      setError(null);
-
-      const response = await fetch(`${API_BASE_URL}/content`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ expectedVersion: content.version, content }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to save content");
-      }
-
-      const data = await response.json();
-
-      if (data.content) {
-        setHasEdits(false);
-        setContent(data.content.content);
-      }
-
-      alert("Content saved successfully");
-    } catch (error) {
-      console.error(error);
-      alert("Failed to save content");
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
-  const handleChange = (value: RootContent) => {
-    setHasEdits(true);
-    setContent(value);
-  };
+  const { content, error, isLoading, isSaving, onChange, onSave, saveState } =
+    useContent();
 
   if (isLoading) return <p>Loading content...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
@@ -89,54 +26,66 @@ const Content: FC = () => {
             Site Content
           </h2>
         </div>
-
         <button
-          type="button"
-          onClick={handleSave}
-          disabled={isSaving || !hasEdits}
-          className="rounded-xl bg-(--accent) px-4 py-2 font-medium text-white"
+          disabled={saveState === "clean" || isSaving}
+          onClick={onSave}
+          className={clsx(
+            "rounded-xl px-4 py-2 font-semibold transition-colors cursor-pointer",
+            {
+              "bg-blue-600 text-white": saveState === "dirty",
+              "bg-green-600 text-white": saveState === "saved",
+              "bg-slate-300 text-slate-600 cursor-not-allowed":
+                saveState === "clean",
+            },
+          )}
         >
-          {isSaving ? "Saving..." : !hasEdits ? "No Changes" : "Save"}
+          {saveState === "saved"
+            ? "Saved ✓"
+            : isSaving
+              ? "Saving..."
+              : saveState === "dirty"
+                ? "Save Changes"
+                : "No Changes"}
         </button>
       </header>
 
       <form className="space-y-6">
         <HeroSection
           section={content.hero}
-          onChange={(hero) => handleChange({ ...content, hero: hero })}
+          onChange={(hero) => onChange({ ...content, hero })}
         />
         <TextCardSection
-          onChange={(value) => handleChange({ ...content, whatWeDo: value })}
+          onChange={(whatWeDo) => onChange({ ...content, whatWeDo })}
           title="What We Do"
           section={content.whatWeDo}
         />
         <TextCardSection
-          onChange={(value) => handleChange({ ...content, services: value })}
+          onChange={(services) => onChange({ ...content, services })}
           title="Services"
           section={content.services}
         />
         <ProcessSection
           section={content.process}
-          onChange={(value) => handleChange({ ...content, process: value })}
+          onChange={(process) => onChange({ ...content, process })}
         />
         <TextCardSection
-          onChange={(value) => handleChange({ ...content, whyClip: value })}
+          onChange={(whyClip) => onChange({ ...content, whyClip })}
           title="Why Clip"
           section={content.whyClip}
         />
         <TextCardSection
-          onChange={(value) => handleChange({ ...content, bestFit: value })}
+          onChange={(bestFit) => onChange({ ...content, bestFit })}
           title="Best Fit"
           section={content.bestFit}
         />
 
         <ResultSection
-          onChange={(value) => handleChange({ ...content, results: value })}
+          onChange={(results) => onChange({ ...content, results })}
           section={content.results}
         />
 
         <ContactSection
-          onChange={(value) => handleChange({ ...content, contact: value })}
+          onChange={(contact) => onChange({ ...content, contact })}
           section={content.contact}
         />
       </form>
