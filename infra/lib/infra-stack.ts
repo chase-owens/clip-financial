@@ -95,6 +95,23 @@ export class InfraStack extends cdk.Stack {
       },
     });
 
+    adminUserPool.addDomain("ClipAdminCognitoDomain", {
+      cognitoDomain: {
+        domainPrefix: "clip-admin-prod",
+      },
+    });
+
+    const adminAuthorizer = new apigateway.CognitoUserPoolsAuthorizer(
+      this,
+      "AdminAuthorizer",
+      { cognitoUserPools: [adminUserPool] },
+    );
+
+    const routeAuthConfig: apigateway.MethodOptions = {
+      authorizer: adminAuthorizer,
+      authorizationType: apigateway.AuthorizationType.COGNITO,
+    };
+
     const adminUserPoolClient = new cognito.UserPoolClient(
       this,
       "AdminUserPoolClient",
@@ -130,7 +147,7 @@ export class InfraStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "ClipAdminCognitoDomain", {
-      value: "https://clip-admin-prod.auth.us-east-1.amazoncognito.com",
+      value: `https://clip-admin-prod.auth.${this.region}.amazoncognito.com`,
     });
 
     // Add secrets
@@ -300,11 +317,13 @@ export class InfraStack extends cdk.Stack {
     inquiries.addMethod(
       "POST",
       new apigateway.LambdaIntegration(createInquiryLambda),
+      routeAuthConfig,
     );
 
     inquiries.addMethod(
       "GET",
       new apigateway.LambdaIntegration(getInquiriesLambda),
+      routeAuthConfig,
     );
 
     //inquiry
@@ -312,11 +331,13 @@ export class InfraStack extends cdk.Stack {
     inquiry.addMethod(
       "PATCH",
       new apigateway.LambdaIntegration(updateInquiriesLambda),
+      routeAuthConfig,
     );
 
     inquiry.addMethod(
       "GET",
       new apigateway.LambdaIntegration(getInquiryLambda),
+      routeAuthConfig,
     );
 
     // content
@@ -328,6 +349,7 @@ export class InfraStack extends cdk.Stack {
     content.addMethod(
       "PUT",
       new apigateway.LambdaIntegration(updateContentLambda),
+      routeAuthConfig,
     );
   }
 }

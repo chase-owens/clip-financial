@@ -16,16 +16,25 @@ const actions = [
 
 const Dashboard = () => {
   const { inquiries, isLoading } = useInquiries({ status: "new" });
+
   return (
     <>
+      <header className="mb-8 flex items-center justify-between">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--accent)">
+            Dashboard
+          </p>
+
+          <h2 className="mt-2 text-3xl font-bold text-(--text-h)">
+            Business Overview
+          </h2>
+        </div>
+      </header>
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <DashboardCard
           label="New Inquiries"
-          value={`${isLoading ? "loading" : inquiries.length}`}
+          value={`${isLoading ? "Loading..." : inquiries.length}`}
         />
-        {/* <DashboardCard label="Content Sections" value="4" />
-        <DashboardCard label="Published Site" value="Live" />
-        <DashboardCard label="Admin Status" value="Protected" /> */}
       </section>
 
       <section className="mt-4 grid gap-4 xl:grid-cols-[2fr_1fr]">

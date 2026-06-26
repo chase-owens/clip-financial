@@ -1,5 +1,4 @@
-import { Outlet } from "react-router-dom";
-import { NavLink } from "react-router-dom";
+import { Outlet, NavLink } from "react-router-dom";
 import "./index.css";
 import { useAuth } from "./auth/useAuth";
 
@@ -14,7 +13,7 @@ const navItems: NavItem[] = [
   { label: "Inquiries", href: "/inquiries" },
 ];
 
-export default function App() {
+const App = () => {
   const { signOut } = useAuth();
 
   return (
@@ -39,7 +38,7 @@ export default function App() {
           <button
             type="button"
             onClick={signOut}
-            className="rounded-xl border border-(--border) bg-(--social-bg) px-4 py-3 text-left text-sm transition hover:border-(--accent-border)text-left text-red-400 transition-colors hover:text-red-300"
+            className="rounded-xl border border-(--border) bg-(--social-bg) px-4 py-3 text-left text-sm transition hover:border-(--accent-border)text-left text-red-400  hover:text-red-300"
           >
             Log Out
           </button>
@@ -47,20 +46,9 @@ export default function App() {
       </aside>
 
       <main className="p-8">
-        <header className="mb-8 flex items-center justify-between">
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-(--accent)">
-              Dashboard
-            </p>
-
-            <h2 className="mt-2 text-3xl font-bold text-(--text-h)">
-              Business Overview
-            </h2>
-          </div>
-        </header>
-
         <Outlet />
       </main>
     </div>
   );
-}
+};
+export default App;

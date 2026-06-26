@@ -3,49 +3,46 @@ import useInquiries from "../hooks/useInquiries";
 import { useNavigate, useParams } from "react-router-dom";
 import TextField from "../components/inquiries/TextField";
 import type { Status } from "../../../shared/types/Inquiry";
+import clsx from "clsx";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+type SaveState = "clean" | "dirty" | "saved";
 
 const EditInquiry: FC = () => {
   const navigate = useNavigate();
   const { inquiryId } = useParams();
-  const { currentInquiry } = useInquiries({ inquiryId });
+  const { currentInquiry, error, isLoading, updateInquiry } = useInquiries({
+    inquiryId,
+  });
 
-  const [hasEdits, setHasEdits] = useState(false);
+  const [saveState, setSaveState] = useState<SaveState>("clean");
   const [notes, setNotes] = useState("");
-  const [status, setStatus] = useState(currentInquiry?.status ?? "new");
+  const [status, setStatus] = useState<Status | null>(null);
   const [isSaving, setIsSaving] = useState(false);
 
+  if (isLoading) {
+    return <div className="max-w-4xl">Fetching Inquiries</div>;
+  }
+
   if (!currentInquiry) {
-    return <div>no inquiry found :(</div>;
+    return (
+      <div className="max-w-4xl">no inquiry found :( {error && error}</div>
+    );
   }
   const { name, company, email, message, software, createdAt } = currentInquiry;
 
   const handleSave = async () => {
-    if (!inquiryId) return;
+    if (!inquiryId || !status) {
+      return;
+    }
+
+    setIsSaving(true);
 
     try {
-      setIsSaving(true);
+      await updateInquiry(inquiryId, { status, notes });
+      setSaveState("saved");
 
-      const response = await fetch(`${API_BASE_URL}/inquiries/${inquiryId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          status,
-          notes,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update inquiry");
-      }
-
-      setHasEdits(false);
-      navigate("/inquiries");
-    } catch (error) {
-      console.error(error);
+      setTimeout(() => setSaveState("clean"), 1500);
+    } catch {
       alert("Failed to update inquiry");
     } finally {
       setIsSaving(false);
@@ -90,12 +87,12 @@ const EditInquiry: FC = () => {
               <label className="mb-2 block font-medium">Status</label>
 
               <select
-                value={status}
+                value={status ?? currentInquiry.status}
                 onChange={(event) => {
-                  setHasEdits(true);
+                  setSaveState("dirty");
                   setStatus(event.target.value as Status);
                 }}
-                className="w-full rounded-xl border border-(--border) bg-(--bg) px-4 py-3"
+                className="w-full rounded-xl border border-(--border) bg-(--bg) px-4 py-10"
               >
                 <option value="new">New</option>
                 <option value="reviewing">Reviewing</option>
@@ -111,7 +108,7 @@ const EditInquiry: FC = () => {
                 rows={8}
                 value={notes}
                 onChange={(event) => {
-                  setHasEdits(true);
+                  setSaveState("dirty");
                   setNotes(event.target.value);
                 }}
                 className="w-full rounded-xl border border-(--border) bg-(--bg) p-4"
@@ -122,22 +119,31 @@ const EditInquiry: FC = () => {
               <button
                 type="button"
                 onClick={() => navigate("/inquiries")}
-                className="rounded-xl border border-(--border) px-4 py-2"
+                className="rounded-xl border border-(--border) px-4 py-2 cursor-pointer"
               >
                 Cancel
               </button>
 
               <button
-                type="button"
-                disabled={isSaving || !hasEdits}
+                disabled={saveState === "clean" || isSaving}
                 onClick={handleSave}
-                className="rounded-xl bg-(--accent) px-4 py-2 text-white"
+                className={clsx(
+                  "rounded-xl px-4 py-2 font-semibold transition-colors cursor-pointer",
+                  {
+                    "bg-blue-600 text-white": saveState === "dirty",
+                    "bg-green-600 text-white": saveState === "saved",
+                    "bg-slate-300 text-slate-600 cursor-not-allowed":
+                      saveState === "clean",
+                  },
+                )}
               >
-                {isSaving
-                  ? "Saving..."
-                  : !hasEdits
-                    ? "No Changes"
-                    : "Save Changes"}
+                {saveState === "saved"
+                  ? "Saved ✓"
+                  : isSaving
+                    ? "Saving..."
+                    : saveState === "dirty"
+                      ? "Save Changes"
+                      : "No Changes"}
               </button>
             </div>
           </div>
