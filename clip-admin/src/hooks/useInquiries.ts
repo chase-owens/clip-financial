@@ -45,7 +45,6 @@ const useInquiries = ({ inquiryId, status }: UseInquiriesProps = {}) => {
   }, [status]);
 
   const url = buildInquiriesUrl({ inquiryId, query });
-  console.log("🚀 ~ useInquiries ~ url:", url);
 
   const inquiriesQuery = useQuery({
     queryKey: ["inquiries", { inquiryId, status }],
