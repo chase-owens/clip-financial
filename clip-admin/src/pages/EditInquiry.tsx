@@ -38,7 +38,7 @@ const EditInquiry: FC = () => {
     setIsSaving(true);
 
     try {
-      await updateInquiry(inquiryId, { status, notes });
+      await updateInquiry({ inquiryId, updates: { status, notes } });
       setSaveState("saved");
 
       setTimeout(() => setSaveState("clean"), 1500);
