@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import type { Inquiry, Status } from "../../../shared/types/Inquiry";
 import { createApiClient } from "../api/client";
 import { useAuth } from "../auth/useAuth";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type UseInquiriesProps = {
   inquiryId?: string;
@@ -30,64 +31,65 @@ const buildInquiriesUrl = ({
 
 const useInquiries = ({ inquiryId, status }: UseInquiriesProps = {}) => {
   const { idToken } = useAuth();
-  const [inquiries, setInquiries] = useState<Inquiry[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentInquiry, setCurrentInquiry] = useState<Inquiry | null>(null);
+  const queryClient = useQueryClient();
   const apiClient = useMemo(() => createApiClient(idToken), [idToken]);
-  const params = new URLSearchParams();
 
-  if (status) {
-    params.set("status", status);
-  }
+  const query = useMemo(() => {
+    const params = new URLSearchParams();
 
-  const query = params.toString();
-  const url = buildInquiriesUrl({ inquiryId, query });
-
-  useEffect(() => {
-    if (!idToken) {
-      return;
+    if (status) {
+      params.set("status", status);
     }
-    const fetchInquiries = async () => {
-      try {
-        const data = await apiClient.get(url);
-        const { inquiries: apiInquiries, inquiry: apiInquiry } = data;
-        console.log("🚀 ~ fetchInquiries ~ apiInquiries:", data);
 
-        if (apiInquiries) {
-          setInquiries(apiInquiries);
-        }
+    return params.toString();
+  }, [status]);
 
-        if (apiInquiry) {
-          setCurrentInquiry(apiInquiry);
-        }
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  const url = buildInquiriesUrl({ inquiryId, query });
+  console.log("🚀 ~ useInquiries ~ url:", url);
 
-    fetchInquiries();
-  }, [idToken, apiClient, url]);
+  const inquiriesQuery = useQuery({
+    queryKey: ["inquiries", { inquiryId, status }],
+    enabled: Boolean(idToken),
+    queryFn: async () => {
+      const data = await apiClient.get(url);
 
-  const updateInquiry = async (
-    inquiryId: string,
-    updates: {
-      status: Status;
-      notes: string;
+      return {
+        inquiries: (data.inquiries ?? []) as Inquiry[],
+        currentInquiry: (data.inquiry ?? null) as Inquiry | null,
+      };
     },
-  ) => {
-    return apiClient.patch(`/inquiries/${inquiryId}`, updates);
-  };
+  });
+
+  const updateInquiryMutation = useMutation({
+    mutationFn: async ({
+      inquiryId,
+      updates,
+    }: {
+      inquiryId: string;
+      updates: {
+        status: Status;
+        notes: string;
+      };
+    }) => {
+      return apiClient.patch(`/inquiries/${inquiryId}`, updates);
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["inquiries"] });
+    },
+  });
 
   return {
-    currentInquiry,
-    error,
-    inquiries,
-    isLoading,
-    updateInquiry,
+    currentInquiry: inquiriesQuery.data?.currentInquiry ?? null,
+    error:
+      inquiriesQuery.error instanceof Error
+        ? inquiriesQuery.error.message
+        : null,
+    inquiries: inquiriesQuery.data?.inquiries ?? [],
+    isLoading: inquiriesQuery.isLoading,
+    isFetching: inquiriesQuery.isFetching,
+
+    updateInquiry: updateInquiryMutation.mutateAsync,
+    isUpdating: updateInquiryMutation.isPending,
   };
 };
 

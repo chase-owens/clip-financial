@@ -1,81 +1,61 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createApiClient } from "../api/client";
 import { useAuth } from "../auth/useAuth";
 import type { RootContent } from "../../../shared/types/RootContent";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 type SaveState = "clean" | "dirty" | "saved";
 
 const useContent = () => {
   const { idToken } = useAuth();
+  const queryClient = useQueryClient();
   const [content, setContent] = useState<RootContent | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [saveState, setSaveState] = useState<SaveState>("clean");
   const apiClient = useMemo(() => createApiClient(idToken), [idToken]);
 
-  useEffect(() => {
-    if (!idToken) {
-      return;
-    }
+  const contentQuery = useQuery({
+    queryKey: ["content"],
+    enabled: Boolean(idToken),
+    queryFn: async () => {
+      const data = await apiClient.get("/content");
 
-    const getContent = async () => {
-      try {
-        const response = await apiClient.get("/content");
-
-        if (!response) throw new Error("Failed to fetch content");
-
-        setContent(response);
-        setError(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    getContent();
-  }, [apiClient, idToken]);
+      return {
+        content: (data ?? null) as RootContent | null,
+      };
+    },
+  });
 
   const handleChange = useCallback((value: RootContent) => {
     setSaveState("dirty");
     setContent(value);
   }, []);
 
-  const handleSave = async () => {
-    if (!content) return;
-
-    try {
+  const updateContentMutation = useMutation({
+    mutationFn: async () => {
       setIsSaving(true);
-      setError(null);
-
-      const response = await apiClient.put("/content", {
-        expectedVersion: content.version,
+      return apiClient.put("/content", {
+        expectedVersion: content?.version,
         content,
       });
-
-      if (response.content) {
-        setContent(response.content.content);
-      }
-
-      setSaveState("saved");
-
-      setTimeout(() => setSaveState("clean"), 1500);
-    } catch (error) {
-      console.error(error);
-      alert("Failed to save content");
-    } finally {
+    },
+    onSuccess: async () => {
       setIsSaving(false);
-    }
-  };
+      setSaveState("saved");
+      setTimeout(() => setSaveState("clean"), 2100);
+      await queryClient.invalidateQueries({ queryKey: ["content"] });
+    },
+  });
 
   return {
-    content,
-    error,
-    isLoading,
+    content: content ?? contentQuery.data?.content,
+    error:
+      contentQuery.error instanceof Error ? contentQuery.error.message : null,
+    isFetching: contentQuery.isFetching,
+    isLoading: contentQuery.isLoading,
     isSaving,
     onChange: handleChange,
-    onSave: handleSave,
+    onSave: updateContentMutation.mutateAsync,
     saveState,
   };
 };
